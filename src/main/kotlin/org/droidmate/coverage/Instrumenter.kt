@@ -113,7 +113,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         Resource("debug.keystore").extractTo(stagingDir)
     )
 
-    private val allMethods = HashSet<String>()
+    private val allMethods = HashMap<Long, String>()
     private val helperClasses = listOf("MonitorTcpServer",
         "Runtime",
         "SerializationHelper",
@@ -301,7 +301,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
                     // Instrument statements
                     if (u !is JIdentityStmt) {
                         val id = counter
-                        allMethods.add("$u $ID_STR$id")
+                        allMethods[id] = "$u"
                         val logStatement = runtime.makeCallToStatementPoint("$id")
                         units.insertBefore(logStatement, u)
                         counter++
