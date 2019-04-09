@@ -39,53 +39,44 @@ import java.nio.file.Path
  * Originally copied to a large extent from the aggregator project.
  */
 class ApkContentManager @Throws(IOException::class)
-constructor(private val originalApkPath: Path, private val apkContentDir: Path, globalOutputDir: Path) {
+constructor(private val originalApkPath: Path, private val apkContentDir: Path, stagingDir: Path) {
 
-    private val apkToolName = "apktool.jar"
-    private val apkToolPath: Path = globalOutputDir.resolve(apkToolName)
-
-    init {
-        if (Files.exists(apkToolPath)) {
-            Files.delete(apkToolPath)
-        }
-
-        Resource(apkToolName).extractTo(globalOutputDir)
-    }
+    private val apkTool = Resource("apktool.jar").extractTo(stagingDir)
 
     @Throws(IOException::class)
     fun extractApk(forceOverwriteApkContentDir: Boolean) {
-        // do not extract again if app has not changed since last extraction
+        // Do not extract again if app has not changed since last extraction
         if (!forceOverwriteApkContentDir && Files.exists(apkContentDir) &&
             Files.getLastModifiedTime(apkContentDir) >= Files.getLastModifiedTime(originalApkPath)
         ) {
-            LOGGER.info(
+            log.info(
                 "Apk hasn't changed since last extraction. Omitting ApkTool invocation. Use 'forceOverwriteApkContentDir' to force an update!")
             return
         }
 
-        LOGGER.info("Invoking apk tool to extract apks content")
+        log.info("Invoking apk tool to extract apks content")
         val stopWatch = Stopwatch.createStarted()
         // Added -r, otherwise some apps invoked:
         // brut.androlib.AndrolibException: brut.common.BrutException: could not exec
         invokeApkTool("-s", "-f", "-r", "d", "-o", apkContentDir.toString(), originalApkPath.toString())
-        LOGGER.info("Apk tool finished after {}", stopWatch)
+        log.info("Apk tool finished after {}", stopWatch)
     }
 
     @Throws(IOException::class)
     fun buildApk(outApk: Path) {
-        LOGGER.info("Invoking apk tool to build apk from content dir")
+        log.info("Invoking apk tool to build apk from content dir")
         val stopWatch = Stopwatch.createStarted()
         invokeApkTool("b", apkContentDir.toString(), "-o", outApk.toString())
-        LOGGER.info("Apk tool finished after {}", stopWatch)
+        log.info("Apk tool finished after {}", stopWatch)
     }
 
     private fun invokeApkTool(vararg params: String) {
         try {
             val sysCmdExecutor = SysCmdExecutor()
             val cmdDescription = "Command for invoking the apk tool"
-            sysCmdExecutor.execute(cmdDescription, "java", "-jar", apkToolPath.toString(), *params)
+            sysCmdExecutor.execute(cmdDescription, "java", "-jar", apkTool.toString(), *params)
         } catch (e: Exception) {
-            LOGGER.error("Error during ApkTool execution", e)
+            log.error("Error during ApkTool execution", e)
             throw RuntimeException(e)
         }
     }
@@ -99,6 +90,6 @@ constructor(private val originalApkPath: Path, private val apkContentDir: Path, 
     }
 
     companion object {
-        private val LOGGER = LoggerFactory.getLogger(ApkContentManager::class.java)
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }
