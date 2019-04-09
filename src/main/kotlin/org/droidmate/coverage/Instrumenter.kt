@@ -113,7 +113,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         Resource("debug.keystore").extractTo(stagingDir)
     )
 
-    private val allMethods = mutableSetOf<String>()
+    private val allMethods = HashSet<String>()
     private val helperClasses = listOf("MonitorTcpServer",
         "Runtime",
         "SerializationHelper",
