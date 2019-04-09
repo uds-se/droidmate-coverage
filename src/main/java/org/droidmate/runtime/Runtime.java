@@ -79,7 +79,6 @@ public class Runtime {
 	private static void addCurrentStatements(String payload) {
 		//synchronized (currentStatements) {
 		if (logEveryStatement || !allStatements.contains(payload)) {
-			log.info("addCurrentStatements(" + count++ + "/" + payload + ")");
 			String now = org.droidmate.runtime.MonitorTcpServer.getNowDate();
 			currentStatements.add(new ArrayList<>(Arrays.asList(now, payload)));
 			allStatements.add(payload);

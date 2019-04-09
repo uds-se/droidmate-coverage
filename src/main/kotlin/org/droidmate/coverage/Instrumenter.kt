@@ -77,6 +77,8 @@ class Instrumenter(private val stagingDir: Path) {
             val apkFile = if (Files.isDirectory(apkPath)) {
                 Files.list(apkPath)
                     .asSequence()
+                    .filter { it.fileName.toString().endsWith(".apk") }
+                    .filterNot { it.fileName.toString().endsWith("-instrumented.apk") }
                     .first()
             } else {
                 apkPath
