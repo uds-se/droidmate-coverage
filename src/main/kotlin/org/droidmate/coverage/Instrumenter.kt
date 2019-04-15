@@ -170,7 +170,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
             apkContentManager.extractApk(true)
 
             // Add internet permission
-            Helper.initializeManifestInfo(apk.absolutePath)
+            Helper.initializeManifestInfo(apk.path.toString())
 
             // The apk will need internet permissions to make sure that the TCP communication works
             if (!Helper.hasPermission(ManifestConstants.PERMISSION_INET)) {
