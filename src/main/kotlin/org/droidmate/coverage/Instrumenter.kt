@@ -31,6 +31,7 @@ import org.droidmate.device.android_sdk.IApk
 import org.droidmate.helpClasses.Helper
 import org.droidmate.instrumentation.Runtime
 import org.droidmate.legacy.Resource
+import org.droidmate.legacy.asEnvDir
 import org.droidmate.legacy.deleteDirectoryRecursively
 import org.droidmate.manifest.ManifestConstants
 import org.droidmate.misc.DroidmateException
@@ -235,7 +236,8 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         Options.v().set_process_dir(processDirs)
 
         // Consider using set_android_jars instead of set_force_android_jar
-        Options.v().set_force_android_jar(EnvironmentConstants.android_jar_api23)
+        //Options.v().set_force_android_jar(EnvironmentConstants.an´)
+        Options.v().set_android_jars("ANDROID_HOME".asEnvDir.resolve("platforms").toString())
         // soot.options.Options.v().set_android_jars()
 
         Options.v().set_force_overwrite(true)
