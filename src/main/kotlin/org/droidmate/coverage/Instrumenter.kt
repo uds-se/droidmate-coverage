@@ -39,12 +39,7 @@ import org.droidmate.misc.JarsignerWrapper
 import org.droidmate.misc.SysCmdExecutor
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
-import soot.Body
-import soot.BodyTransformer
-import soot.PackManager
-import soot.Scene
-import soot.SootClass
-import soot.Transform
+import soot.*
 import soot.jimple.internal.JIdentityStmt
 import soot.options.Options
 import java.io.IOException
@@ -64,10 +59,12 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         @JvmStatic
         fun main(args: Array<String>) {
             if (args.isEmpty() || args.size > 3) {
-                println("Usage instructions: \n" +
-                        "-- <APK> <ONLY-APP-PACKAGE>\n" +
-                        "-- <APK> <ONLY-APP-PACKAGE <DESTINATION DIR>\n" +
-                        "If not destination directory is specified, the file will be saved alongside the original APK")
+                println(
+                    "Usage instructions: \n" +
+                            "-- <APK> <ONLY-APP-PACKAGE>\n" +
+                            "-- <APK> <ONLY-APP-PACKAGE <DESTINATION DIR>\n" +
+                            "If not destination directory is specified, the file will be saved alongside the original APK"
+                )
                 return
             }
 
@@ -100,8 +97,10 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
             } finally {
                 stagingDir.deleteDirectoryRecursively()
             }
-            println("Compiled apk moved to: ${instrumentationResult.first}\n" +
-                    "Instrumentation results written to: ${instrumentationResult.second}")
+            println(
+                "Compiled apk moved to: ${instrumentationResult.first}\n" +
+                        "Instrumentation results written to: ${instrumentationResult.second}"
+            )
         }
     }
 
@@ -114,17 +113,21 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
     )
 
     private val allMethods = HashMap<Long, String>()
-    private val helperClasses = listOf("MonitorTcpServer",
+    private val helperClasses = listOf(
+        "MonitorTcpServer",
         "Runtime",
         "SerializationHelper",
         "TcpServerBase\$1",
         "TcpServerBase\$MonitorServerRunnable",
-        "TcpServerBase")
+        "TcpServerBase"
+    )
 
-    private val excludedPackages = listOf("android.support.",
+    private val excludedPackages = listOf(
+        "android.support.",
         "com.google.",
         "com.android.",
-        "android.java.")
+        "android.java."
+    )
 
     private lateinit var helperSootClasses: List<SootClass>
     private lateinit var runtime: Runtime
@@ -185,8 +188,10 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
             configSoot(tmpOutApk, sootDir)
 
             val instrumentedApk = instrumentAndSign(apk, sootDir)
-            val outputApk = outputDir.resolve(instrumentedApk.fileName.toString()
-                .replace(".apk", "-instrumented.apk"))
+            val outputApk = outputDir.resolve(
+                instrumentedApk.fileName.toString()
+                    .replace(".apk", "-instrumented.apk")
+            )
 
             Files.move(instrumentedApk, outputApk, StandardCopyOption.REPLACE_EXISTING)
             val instrumentedStatements = writeInstrumentationList(apk, outputDir)
@@ -219,7 +224,9 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         val helperDir = resourceDir
             .resolve(Runtime.PACKAGE.replace('.', '/'))
 
-        helperClasses.forEach { Resource("$it.class").extractTo(helperDir) }
+        helperClasses
+            .filter { !it.contains("\$") }
+            .forEach { Resource("$it.class").extractTo(helperDir) }
 
         processDirs.add(resourceDir.toString())
 
@@ -276,41 +283,47 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
      * Custom statement instrumentation transformer.
      * Each statement is uniquely assigned by an incrementing long counter (2^64 universe).
      */
-    inner class ITransformer(apk: IApk, onlyCoverAppPackageName: Boolean) : Transform("jtp.androcov", object : BodyTransformer() {
+    inner class ITransformer(apk: IApk, onlyCoverAppPackageName: Boolean) :
+        Transform("jtp.androcov", object : BodyTransformer() {
 
-        private var counter: Long = 0
-        private val refinedPackageName = refinePackageName(apk)
+            private var counter: Long = 0
+            private val refinedPackageName = refinePackageName(apk)
 
-        override fun internalTransform(b: Body, phaseName: String, options: MutableMap<String, String>) {
-            val units = b.units
-            // Important to use snapshotIterator here
-            // Skip if the current class is one of the classes we use to instrument the coverage
-            if (helperSootClasses.any { it === b.method.declaringClass }) { return }
-            // Skip if the current class belongs to the Android OS
-            if (excludedPackages.any { b.method.declaringClass.toString().startsWith(it) }) { return }
-
-            val methodSig = b.method.signature
-
-            if (!onlyCoverAppPackageName ||
-                (onlyCoverAppPackageName && methodSig.startsWith("<$refinedPackageName"))) {
-
-                // Perform instrumentation here
-                val iterator = units.snapshotIterator()
-                while (iterator.hasNext()) {
-                    val u = iterator.next()
-                    // Instrument statements
-                    if (u !is JIdentityStmt) {
-                        val id = counter
-                        allMethods[id] = "$u"
-                        val logStatement = runtime.makeCallToStatementPoint("$id")
-                        units.insertBefore(logStatement, u)
-                        counter++
-                    }
+            override fun internalTransform(b: Body, phaseName: String, options: MutableMap<String, String>) {
+                val units = b.units
+                // Important to use snapshotIterator here
+                // Skip if the current class is one of the classes we use to instrument the coverage
+                if (helperSootClasses.any { it === b.method.declaringClass }) {
+                    return
                 }
-                b.validate()
+                // Skip if the current class belongs to the Android OS
+                if (excludedPackages.any { b.method.declaringClass.toString().startsWith(it) }) {
+                    return
+                }
+
+                val methodSig = b.method.signature
+
+                if (!onlyCoverAppPackageName ||
+                    (onlyCoverAppPackageName && methodSig.startsWith("<$refinedPackageName"))
+                ) {
+
+                    // Perform instrumentation here
+                    val iterator = units.snapshotIterator()
+                    while (iterator.hasNext()) {
+                        val u = iterator.next()
+                        // Instrument statements
+                        if (u !is JIdentityStmt) {
+                            val id = counter
+                            allMethods[id] = "$u"
+                            val logStatement = runtime.makeCallToStatementPoint("$id")
+                            units.insertBefore(logStatement, u)
+                            counter++
+                        }
+                    }
+                    b.validate()
+                }
             }
-        }
-    })
+        })
 
     @Throws(IOException::class)
     private fun writeInstrumentationList(apk: IApk, outputDir: Path): Path {
