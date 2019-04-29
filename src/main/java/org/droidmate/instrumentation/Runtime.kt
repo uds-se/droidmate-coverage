@@ -37,6 +37,8 @@ import java.nio.file.Path
 
 /**
  * Originally copied to a large extent from the aggregator project.
+ *
+ * @author Original code by Manuel Benz (https://github.com/mbenz89)
  */
 class Runtime private constructor(private val portFile: Path) {
 

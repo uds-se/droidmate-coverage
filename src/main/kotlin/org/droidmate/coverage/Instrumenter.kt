@@ -58,7 +58,7 @@ import kotlin.streams.asSequence
 /**
  * Instrument statements in an apk.
  *
- * @author
+ * @author Original code by Manuel Benz (https://github.com/mbenz89)
  */
 class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackageName: Boolean) {
     companion object {

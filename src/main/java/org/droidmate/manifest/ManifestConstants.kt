@@ -27,6 +27,8 @@ package org.droidmate.manifest
 
 /**
  * Originally copied to a large extent from the aggregator project.
+ *
+ * @author Original code by Manuel Benz (https://github.com/mbenz89)
  */
 object ManifestConstants {
     const val PERMISSION_INET = "android.permission.INTERNET"

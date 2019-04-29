@@ -39,6 +39,8 @@ import java.util.HashSet
  * Currently only enables us to add permissions to the android manifest.
  *
  * Originally copied to a large extent from the aggregator project.
+ *
+ * @author Original code by Manuel Benz (https://github.com/mbenz89)
  */
 class ManifestInstrumenter(pathToAndroidManifest: Path) {
     private val filePath: String = pathToAndroidManifest.toString()
