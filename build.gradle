@@ -65,8 +65,8 @@ dependencies {
     implementation group: 'com.ximpleware', name: 'vtd-xml', version: '2.13.4'
     implementation 'org.apache.commons:commons-lang3:3.8'
 
-	compile "ca.mcgill.sable:soot:3.3.0-SNAPSHOT"
-	compile ("de.tud.sse:soot-infoflow-android:2.7.2-SNAPSHOT") {
+	implementation "ca.mcgill.sable:soot:3.3.0-SNAPSHOT"
+    implementation ("de.tud.sse:soot-infoflow-android:2.7.2-SNAPSHOT") {
         // FlowDroid uses an older version of Soot, let's use the newest one!
         exclude group: 'ca.mcgill.sable', module: 'soot'
     }
