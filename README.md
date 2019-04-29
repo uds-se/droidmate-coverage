@@ -25,3 +25,5 @@ Date of last full review of this document: 07 Aug 2018
 ##### Former Maintainers #####
 
 * Konrad Jamrozik `<jamrozik at st dot cs dot uni-saarland dot de>`
+
+#### Instrumentation code originally by Manuel Benz (https://github.com/mbenz89)
