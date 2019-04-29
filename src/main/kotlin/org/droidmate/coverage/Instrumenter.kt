@@ -40,7 +40,12 @@ import org.droidmate.misc.JarsignerWrapper
 import org.droidmate.misc.SysCmdExecutor
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
-import soot.*
+import soot.Body
+import soot.BodyTransformer
+import soot.PackManager
+import soot.Scene
+import soot.SootClass
+import soot.Transform
 import soot.jimple.internal.JIdentityStmt
 import soot.options.Options
 import java.io.IOException
@@ -52,6 +57,8 @@ import kotlin.streams.asSequence
 
 /**
  * Instrument statements in an apk.
+ *
+ * @author
  */
 class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackageName: Boolean) {
     companion object {
@@ -235,10 +242,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         // Options.v().set_process_multiple_dex(true)
         Options.v().set_process_dir(processDirs)
 
-        // Consider using set_android_jars instead of set_force_android_jar
-        //Options.v().set_force_android_jar(EnvironmentConstants.an´)
         Options.v().set_android_jars("ANDROID_HOME".asEnvDir.resolve("platforms").toString())
-        // soot.options.Options.v().set_android_jars()
 
         Options.v().set_force_overwrite(true)
         Scene.v().loadNecessaryClasses()

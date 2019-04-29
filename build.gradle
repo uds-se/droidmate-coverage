@@ -65,20 +65,11 @@ dependencies {
     implementation group: 'com.ximpleware', name: 'vtd-xml', version: '2.13.4'
     implementation 'org.apache.commons:commons-lang3:3.8'
 
-    //implementation project(":runtime")
-
-    /**
-     * We use the Soot version 3.0.1, because we had trouble with Soot 3.1.0.
-     * Soot 3.1.0 was not able to instrument wikihowapp or reddit.
-     *
-     * Use the .jar for soot-infoflow-android and soot, because the repository does not work reliable.
-     */
 	compile "ca.mcgill.sable:soot:3.3.0-SNAPSHOT"
 	compile ("de.tud.sse:soot-infoflow-android:2.7.2-SNAPSHOT") {
         // FlowDroid uses an older version of Soot, let's use the newest one!
         exclude group: 'ca.mcgill.sable', module: 'soot'
     }
-    //compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 compileKotlin {
