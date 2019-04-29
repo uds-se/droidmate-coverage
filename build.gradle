@@ -58,7 +58,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     //compile group:'org.droidmate', name: 'common', version: "1.4-SNAPSHOT"
-    implementation 'com.github.natanieljr:droidmate-common:master-SNAPSHOT'
+    implementation 'com.github.uds-se:droidmate-common:master-SNAPSHOT'
 
     implementation 'org.json:json:20160212'
     implementation group: 'com.google.guava', name: 'guava', version: '26.0-jre'
