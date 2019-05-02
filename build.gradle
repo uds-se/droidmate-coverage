@@ -54,6 +54,16 @@ artifacts {
     archives sourcesJar
 }
 
+apply plugin: 'application'
+mainClassName = "org.droidmate.coverage.Instrumenter"
+
+jar {
+    manifest {
+        attributes 'Main-Class': "org.droidmate.coverage.Instrumenter"
+    }
+}
+
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
