@@ -29,6 +29,7 @@ import com.google.common.base.Suppliers
 import soot.Scene
 import soot.SootClass
 import soot.SootMethod
+import soot.jimple.IntConstant
 import soot.jimple.InvokeStmt
 import soot.jimple.Jimple
 import soot.jimple.StringConstant
@@ -59,10 +60,14 @@ class Runtime private constructor(private val portFile: Path) {
         return statementPointMethod.get()
     }
 
-    fun makeCallToStatementPoint(method: String): InvokeStmt {
+    fun makeCallToStatementPoint(method: String, printToLogcat: Int): InvokeStmt {
+
         return Jimple.v().newInvokeStmt(
             Jimple.v().newStaticInvokeExpr(
-                this.getStatementPointMethod().makeRef(), StringConstant.v(method), StringConstant.v(portFile.toString())))
+                this.getStatementPointMethod().makeRef(),
+                StringConstant.v(method),
+                StringConstant.v(portFile.toString()),
+                IntConstant.v(printToLogcat)))
     }
 
     companion object {

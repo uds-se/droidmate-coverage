@@ -25,7 +25,12 @@
 
 package org.droidmate.coverage
 
+import com.natpryce.konfig.Misconfiguration
 import org.droidmate.ApkContentManager
+import org.droidmate.coverage.CommandLineConfig.apk
+import org.droidmate.coverage.CommandLineConfig.outputDir
+import org.droidmate.coverage.CommandLineConfig.onlyAppPackage
+import org.droidmate.coverage.CommandLineConfig.printToLogcat
 import org.droidmate.device.android_sdk.Apk
 import org.droidmate.device.android_sdk.IApk
 import org.droidmate.helpClasses.Helper
@@ -60,55 +65,61 @@ import kotlin.streams.asSequence
  *
  * @author Original code by Manuel Benz (https://github.com/mbenz89)
  */
-class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackageName: Boolean) {
+class Instrumenter(
+    private val stagingDir: Path,
+    private val onlyCoverAppPackageName: Boolean,
+    print: Boolean
+) {
+    private val printToLogcat = if (print) 1 else 0
+
     companion object {
         private val log by lazy { LoggerFactory.getLogger(this::class.java) }
 
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isEmpty() || args.size > 3) {
-                println(
-                    "Usage instructions: \n" +
-                            "-- <APK> <ONLY-APP-PACKAGE>\n" +
-                            "-- <APK> <ONLY-APP-PACKAGE <DESTINATION DIR>\n" +
-                            "If not destination directory is specified, the file will be saved alongside the original APK"
+            try {
+                val cfg = CommandLineConfigBuilder.build(args)
+                log.info("Configuration:")
+                log.info("  APK: ${cfg[apk]}")
+                log.info("  Only app package: ${cfg[onlyAppPackage]}")
+                log.info("  Print to logcat: ${cfg[printToLogcat]}")
+                log.info("  Output dir: ${cfg[outputDir]}")
+
+                val apkPath = Paths.get(cfg[apk].path)
+                val onlyAppPackage = cfg[onlyAppPackage]
+                val printToLogcat = cfg[printToLogcat]
+
+                val apkFile = if (Files.isDirectory(apkPath)) {
+                    Files.list(apkPath)
+                        .asSequence()
+                        .filter { it.fileName.toString().endsWith(".apk") }
+                        .filterNot { it.fileName.toString().endsWith("-instrumented.apk") }
+                        .first()
+                } else {
+                    apkPath
+                }.toAbsolutePath()
+                assert(Files.isRegularFile(apkFile))
+
+                val dstDir = if (cfg[outputDir].path == "./") {
+                    apkFile.parent
+                } else {
+                    Paths.get(cfg[outputDir].path)
+                }
+
+                val stagingDir = Files.createTempDirectory("staging")
+                val instrumentationResult = try {
+                    val apk = Apk.fromFile(apkFile)
+                    Instrumenter(stagingDir, onlyAppPackage, printToLogcat).instrument(apk, dstDir)
+                } finally {
+                    stagingDir.deleteDirectoryRecursively()
+                }
+                log.info(
+                    "Compiled apk moved to: ${instrumentationResult.first}\n" +
+                            "Instrumentation results written to: ${instrumentationResult.second}"
                 )
-                return
+            } catch (e: Misconfiguration) {
+                CommandLineConfigBuilder.build(arrayOf("--help"))
             }
-
-            val apkPath = Paths.get(args[0])
-
-            val apkFile = if (Files.isDirectory(apkPath)) {
-                Files.list(apkPath)
-                    .asSequence()
-                    .filter { it.fileName.toString().endsWith(".apk") }
-                    .filterNot { it.fileName.toString().endsWith("-instrumented.apk") }
-                    .first()
-            } else {
-                apkPath
-            }.toAbsolutePath()
-
-            val onlyAppPackage = args[1].toLowerCase() == "true" || args[1].toLowerCase() == "1"
-
-            val dstDir = if (args.size > 2) {
-                Paths.get(args[2])
-            } else {
-                apkFile.parent
-            }
-
-            assert(Files.isRegularFile(apkFile))
-
-            val stagingDir = Files.createTempDirectory("staging")
-            val instrumentationResult = try {
-                val apk = Apk.fromFile(apkFile)
-                Instrumenter(stagingDir, onlyAppPackage).instrument(apk, dstDir)
-            } finally {
-                stagingDir.deleteDirectoryRecursively()
-            }
-            println(
-                "Compiled apk moved to: ${instrumentationResult.first}\n" +
-                        "Instrumentation results written to: ${instrumentationResult.second}"
-            )
         }
     }
 
@@ -125,6 +136,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
         "MonitorTcpServer",
         "Runtime",
         "SerializationHelper",
+        "ServerRunnable",
         "TcpServerBase\$1",
         "TcpServerBase\$MonitorServerRunnable",
         "TcpServerBase"
@@ -233,7 +245,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
             .resolve(Runtime.PACKAGE.replace('.', '/'))
 
         helperClasses
-            .filter { !it.contains("\$") }
+            // .filter { !it.contains("\$") }
             .forEach { Resource("$it.class").extractTo(helperDir) }
 
         processDirs.add(resourceDir.toString())
@@ -321,7 +333,7 @@ class Instrumenter(private val stagingDir: Path, private val onlyCoverAppPackage
                         if (u !is JIdentityStmt) {
                             val id = counter
                             allMethods[id] = "$u"
-                            val logStatement = runtime.makeCallToStatementPoint("$id")
+                            val logStatement = runtime.makeCallToStatementPoint("$id", printToLogcat)
                             units.insertBefore(logStatement, u)
                             counter++
                         }

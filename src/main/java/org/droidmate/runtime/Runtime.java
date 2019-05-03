@@ -59,14 +59,14 @@ public class Runtime {
 	}
 
 	@SuppressWarnings("unused")
-	public static void statementPoint(String method, String portFilePath) {
+	public static void statementPoint(String method, String portFilePath, int print) {
 		// Initialize monitor served on the first usage
 		synchronized (currentStatements) {
 			if (!initialized)
 				initialize(portFilePath);
 
 //			log.info("Monitor_API_method_call: " + method);
-			addCurrentStatements(method);
+			addCurrentStatements(method, print != 0);
 		}
 	}
 
@@ -76,14 +76,15 @@ public class Runtime {
 	private final static Set<String> allStatements = new HashSet<>();
 	private static long count;
 
-	private static void addCurrentStatements(String payload) {
-		//synchronized (currentStatements) {
+	private static void addCurrentStatements(String payload, boolean print) {
 		if (logEveryStatement || !allStatements.contains(payload)) {
 			String now = org.droidmate.runtime.MonitorTcpServer.getNowDate();
 			currentStatements.add(new ArrayList<>(Arrays.asList(now, payload)));
 			allStatements.add(payload);
+			if (print) {
+				log.log(Level.INFO, "DM2Coverage: " + now + ": " + payload);
+			}
 		}
-		//}
 	}
 	// endregion
 
