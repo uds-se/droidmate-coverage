@@ -65,10 +65,10 @@ import kotlin.streams.asSequence
  *
  * @author Original code by Manuel Benz (https://github.com/mbenz89)
  */
-class Instrumenter(
+class Instrumenter @JvmOverloads constructor(
     private val stagingDir: Path,
     private val onlyCoverAppPackageName: Boolean,
-    print: Boolean
+    print: Boolean = false
 ) {
     private val printToLogcat = if (print) 1 else 0
 
