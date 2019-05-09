@@ -38,7 +38,7 @@ class MonitorTcpServer extends org.droidmate.runtime.TcpServerBase<String, Linke
 	private static final Logger log = Logger.getLogger(MonitorTcpServer.class.getName());
 
 	private static String srvCmd_close = "close";
-	private static String monitor_time_formatter_pattern = "yyyy-MM-dd HH:mm:ss.SSS";
+	private static String monitor_time_formatter_pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 	private static Locale monitor_time_formatter_locale = Locale.US;
 	private static final SimpleDateFormat monitor_time_formatter
 			= new SimpleDateFormat(monitor_time_formatter_pattern, monitor_time_formatter_locale);
