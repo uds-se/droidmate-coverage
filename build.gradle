@@ -90,6 +90,11 @@ dependencies {
 
 test {
     maxHeapSize = "2048m"
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+
 }
 
 compileKotlin {
