@@ -11,9 +11,10 @@ jdk:
 
 env:
   global:
-
     # Required to obtain reference to jarsigner.
     - JAVA_HOME=/usr/lib/jvm/java-8-oracle
+    # Required to obtain handles to aapt and adb.
+    - ANDROID_HOME=/usr/local/android-sdk
 
 before_install:
 
@@ -40,4 +41,4 @@ cache:
 script:
 
   # By default, 'android' language uses 'connectedCheck'. Here we replace it with appropriate task.
-  - ./gradlew clean build
+  - ./gradlew build
