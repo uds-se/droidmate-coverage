@@ -23,7 +23,7 @@ before_install:
 
   # Allow Gradle build script to execute.
   - chmod +x gradlew
-
+  - find / -name 'android-sdk'
 before_cache:
 
   # Allow Gradle to use cache.
