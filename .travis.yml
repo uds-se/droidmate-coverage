@@ -14,7 +14,7 @@ env:
     # Required to obtain reference to jarsigner.
     - JAVA_HOME=/usr/lib/jvm/java-8-oracle
     # Required to obtain handles to aapt and adb.
-    - ANDROID_HOME=/usr/local/android-sdk
+    - ANDROID_HOME=/usr/lib/android-sdk
 
 before_install:
 
