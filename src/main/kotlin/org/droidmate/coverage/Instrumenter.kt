@@ -274,7 +274,9 @@ class Instrumenter @JvmOverloads constructor(
 
         val transformer = ITransformer(this, onlyCoverAppPackageName)
 
-        PackManager.v().getPack("jtp").add(transformer)
+        if (PackManager.v().getPack("jtp").get("jtp.androcov") == null) {
+            PackManager.v().getPack("jtp").add(transformer)
+        }
 
         PackManager.v().runPacks()
         PackManager.v().writeOutput()
@@ -324,7 +326,6 @@ class Instrumenter @JvmOverloads constructor(
                 if (!onlyCoverAppPackageName ||
                     (onlyCoverAppPackageName && methodSig.startsWith("<$refinedPackageName"))
                 ) {
-
                     // Perform instrumentation here
                     val iterator = units.snapshotIterator()
                     while (iterator.hasNext()) {
