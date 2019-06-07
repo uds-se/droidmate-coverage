@@ -23,7 +23,8 @@ before_install:
 
   # Allow Gradle build script to execute.
   - chmod +x gradlew
-  - find / -name 'android-sdk'
+  - find / -name 'android-sdk'  2>&1 | grep -v "Permission denied"
+
 before_cache:
 
   # Allow Gradle to use cache.
