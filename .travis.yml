@@ -1,5 +1,5 @@
 # Android language used because it installs Android SDK required by DroidMate.
-language: java
+language: android
 
 git:
   # To speed up things. By default it is 50.
