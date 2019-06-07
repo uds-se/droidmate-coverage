@@ -80,7 +80,6 @@ class Instrumenter @JvmOverloads constructor(
             try {
                 val cfg = CommandLineConfigBuilder.build(args)
                 log.info("Configuration:")
-                log.info("  APK: ${cfg[apk]}")
                 log.info("  Only app package: ${cfg[onlyAppPackage]}")
                 log.info("  Print to logcat: ${cfg[printToLogcat]}")
                 log.info("  Output dir: ${cfg[outputDir]}")
@@ -99,6 +98,7 @@ class Instrumenter @JvmOverloads constructor(
                     apkPath
                 }.toAbsolutePath()
                 assert(Files.isRegularFile(apkFile))
+                log.info("  APK: $apkFile")
 
                 val dstDir = if (cfg[outputDir].path == "./") {
                     apkFile.parent
