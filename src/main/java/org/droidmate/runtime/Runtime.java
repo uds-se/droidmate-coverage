@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 public class Runtime {
 
 	// Determines whether every statement should be logged only distinct statements
-	private static final boolean logEveryStatement = false;
+	private static final boolean logEveryStatement = true;
 
 	private static boolean initialized = false;
 	private static final Logger log = Logger.getLogger(Runtime.class.getName());
