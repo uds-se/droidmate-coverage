@@ -43,6 +43,7 @@ import org.droidmate.misc.DroidmateException
 import org.droidmate.misc.EnvironmentConstants
 import org.droidmate.misc.JarsignerWrapper
 import org.droidmate.misc.SysCmdExecutor
+import org.droidmate.misc.withExtension
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import soot.Body
@@ -93,6 +94,9 @@ class Instrumenter @JvmOverloads constructor(
                         .asSequence()
                         .filter { it.fileName.toString().endsWith(".apk") }
                         .filterNot { it.fileName.toString().endsWith("-instrumented.apk") }
+                        .filterNot { p ->
+                            Files.list(apkPath).anyMatch { it.fileName.toString() == "${p.fileName}.json" }
+                        }
                         .first()
                 } else {
                     apkPath
@@ -196,12 +200,14 @@ class Instrumenter @JvmOverloads constructor(
             Helper.initializeManifestInfo(apk.path.toString())
 
             // The apk will need internet permissions to make sure that the TCP communication works
+            val tmpOutApk = workDir.resolve(apk.fileName)
+
             if (!Helper.hasPermission(ManifestConstants.PERMISSION_INET)) {
                 apkContentManager.addPermissionsToApp(ManifestConstants.PERMISSION_INET)
+                apkContentManager.buildApk(tmpOutApk)
+            } else {
+                Files.copy(apk.path, tmpOutApk)
             }
-
-            val tmpOutApk = workDir.resolve(apk.fileName)
-            apkContentManager.buildApk(tmpOutApk)
 
             val sootDir = workDir.resolve("soot")
 
