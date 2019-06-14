@@ -43,7 +43,6 @@ import org.droidmate.misc.DroidmateException
 import org.droidmate.misc.EnvironmentConstants
 import org.droidmate.misc.JarsignerWrapper
 import org.droidmate.misc.SysCmdExecutor
-import org.droidmate.misc.withExtension
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import soot.Body
