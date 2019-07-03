@@ -44,11 +44,13 @@ class MonitorTcpServer extends org.droidmate.runtime.TcpServerBase<String, Linke
 			= new SimpleDateFormat(monitor_time_formatter_pattern, monitor_time_formatter_locale);
 
 	private final List<ArrayList<String>> currentStatements;
+	private final Set<String> nonFetchedStatements;
 
-	MonitorTcpServer(LinkedList<ArrayList<String>> currentStatements) {
+	MonitorTcpServer(LinkedList<ArrayList<String>> currentStatements, Set<String> nonFetchedStatements) {
 		super();
 
 		this.currentStatements = currentStatements;
+		this.nonFetchedStatements = nonFetchedStatements;
 	}
 
 	static String getNowDate() {
@@ -71,13 +73,14 @@ class MonitorTcpServer extends org.droidmate.runtime.TcpServerBase<String, Linke
 			String srvCmd_get_statements = "getStatements";
 
 			if (srvCmd_connCheck.equals(input)) {
-				final ArrayList<String> payload = new ArrayList<>(Arrays.asList(""));
+				final ArrayList<String> payload = new ArrayList<>(Collections.singletonList(""));
 				log.info("connCheck: " + Arrays.toString(payload.toArray()));
 				return new LinkedList<>(Collections.singletonList(payload));
 			} else if (srvCmd_get_statements.equals(input)) {
 				log.info("getStatements: " + currentStatements.size());
 				LinkedList<ArrayList<String>> logsToSend = new LinkedList<>(currentStatements);
 				currentStatements.clear();
+				nonFetchedStatements.clear();
 				return logsToSend;
 			} else if (srvCmd_close.equals(input)) {
 				// In addition to the logic above, this command is handled in

@@ -72,12 +72,14 @@ public class Runtime {
 
 	// !!! DUPLICATION WARNING !!! EXTRACTED FROM DROIDMATE Monitor.java
 
+	private final static Set<String> nonFetchedStatements = new HashSet<>();
 	private final static LinkedList<ArrayList<String>> currentStatements = new LinkedList<>();
 	private final static Set<String> allStatements = new HashSet<>();
 	private static long count;
 
 	private static void addCurrentStatements(String payload, boolean print) {
-		if (logEveryStatement || !allStatements.contains(payload)) {
+		if ((logEveryStatement && !nonFetchedStatements.contains(payload))
+				|| !allStatements.contains(payload)) {
 			String now = org.droidmate.runtime.MonitorTcpServer.getNowDate();
 			currentStatements.add(new ArrayList<>(Arrays.asList(now, payload)));
 			allStatements.add(payload);
@@ -103,7 +105,7 @@ public class Runtime {
 	private static org.droidmate.runtime.MonitorTcpServer startMonitorTCPServer(String portFilePath) throws Throwable {
 		log.info("startMonitorTCPServer(): entering");
 		org.droidmate.runtime.MonitorTcpServer tcpServer
-				= new org.droidmate.runtime.MonitorTcpServer(currentStatements);
+				= new org.droidmate.runtime.MonitorTcpServer(currentStatements, nonFetchedStatements);
 
 		Thread serverThread;
 		Integer portUsed = null;
