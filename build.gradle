@@ -27,7 +27,7 @@ plugins {
 }
 
 group 'org.droidmate'
-version '1.3.2-RC0'
+version '1.4.1-SNAPSHOT'
 
 apply from: file("${rootProject.projectDir}/ktlint.gradle")
 
@@ -72,7 +72,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     //compile group:'org.droidmate', name: 'common', version: "1.3.2-RC0"
-    implementation 'com.github.uds-se:droidmate-common:1.3.2-RC1'
+    implementation 'com.github.uds-se:droidmate-common:1.4.1-SNAPSHOT'
 
     implementation 'org.json:json:20160212'
     implementation group: 'com.google.guava', name: 'guava', version: '26.0-jre'
