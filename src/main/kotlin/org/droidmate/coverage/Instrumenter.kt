@@ -59,6 +59,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import kotlin.streams.asSequence
+import kotlin.system.exitProcess
 
 /**
  * Instrument statements in an apk.
@@ -96,6 +97,7 @@ class Instrumenter @JvmOverloads constructor(
                         .filterNot { p ->
                             Files.list(apkPath).anyMatch { it.fileName.toString() == "${p.fileName}.json" }
                         }
+                        .sorted()
                         .first()
                 } else {
                     apkPath
@@ -202,8 +204,12 @@ class Instrumenter @JvmOverloads constructor(
             val tmpOutApk = workDir.resolve(apk.fileName)
 
             if (!Helper.hasPermission(ManifestConstants.PERMISSION_INET)) {
-                apkContentManager.addPermissionsToApp(ManifestConstants.PERMISSION_INET)
-                apkContentManager.buildApk(tmpOutApk)
+                log.error("App has no internet permission, skipping.")
+                val crashed = apk.path.parent.resolve("crash").resolve(apk.path.fileName)
+                Files.move(apk.path, crashed)
+                exitProcess(0)
+                // apkContentManager.addPermissionsToApp(ManifestConstants.PERMISSION_INET)
+                // apkContentManager.buildApk(tmpOutApk)
             } else {
                 Files.copy(apk.path, tmpOutApk)
             }
@@ -256,7 +262,7 @@ class Instrumenter @JvmOverloads constructor(
         processDirs.add(resourceDir.toString())
 
         // Consider using multiplex, but it crashed for some apps
-        // Options.v().set_process_multiple_dex(true)
+        Options.v().set_process_multiple_dex(true)
         Options.v().set_process_dir(processDirs)
 
         Options.v().set_android_jars("ANDROID_HOME".asEnvDir.resolve("platforms").toString())
