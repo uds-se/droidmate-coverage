@@ -28,6 +28,7 @@ plugins {
     id 'application'
     id 'java'
     id 'maven'
+	id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 group 'org.droidmate'
